@@ -16,6 +16,7 @@
 
     .container {
       text-align: center;
+      z-index: 2;
     }
 
     h1 {
@@ -44,25 +45,83 @@
       background-color: #ccc;
       color: #333;
     }
+
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      z-index: 1;
+    }
   </style>
 </head>
 <body>
 
+  <canvas id="confetti"></canvas>
+
   <div class="container">
     <h1>Would you like to be my valentine? 💕</h1>
-    <button id="yes" onclick="alert('YAAYYYYYY, JE T AIME MON AMOUR!!! <3 <3 <3')">Sí</button>
+    <button id="yes">Sí</button>
     <button id="no">NO</button>
   </div>
 
   <script>
+    // BOTÓN NO QUE HUYE
     const noBtn = document.getElementById("no");
-
     noBtn.addEventListener("mouseover", () => {
       const x = Math.random() * (window.innerWidth - noBtn.offsetWidth);
       const y = Math.random() * (window.innerHeight - noBtn.offsetHeight);
-
       noBtn.style.left = x + "px";
       noBtn.style.top = y + "px";
+    });
+
+    // CONFETI
+    const yesBtn = document.getElementById("yes");
+    const canvas = document.getElementById("confetti");
+    const ctx = canvas.getContext("2d");
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    let confetti = [];
+
+    function createConfetti() {
+      confetti = [];
+      for (let i = 0; i < 180; i++) {
+        confetti.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height - canvas.height,
+          r: Math.random() * 6 + 4,
+          d: Math.random() * 150,
+          color: `hsl(${Math.random() * 360}, 100%, 50%)`
+        });
+      }
+    }
+
+    function drawConfetti() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      confetti.forEach(c => {
+        ctx.beginPath();
+        ctx.fillStyle = c.color;
+        ctx.arc(c.x, c.y, c.r, 0, Math.PI * 2);
+        ctx.fill();
+        c.y += Math.cos(c.d) + 3;
+        c.x += Math.sin(c.d);
+        if (c.y > canvas.height) c.y = -10;
+      });
+    }
+
+    let animation;
+    yesBtn.addEventListener("click", () => {
+      alert("YAAYYYYYY, JE T AIME MON AMOUR!!! <3 <3 <3");
+      createConfetti();
+      animation = setInterval(drawConfetti, 20);
+      setTimeout(() => clearInterval(animation), 4000);
+    });
+
+    window.addEventListener("resize", () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
     });
   </script>
 
